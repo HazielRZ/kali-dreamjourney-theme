@@ -1,0 +1,14 @@
+# 1. Asegurar la disponibilidad del sistema de control de versiones
+sudo apt update && sudo apt install -y git
+
+# 2. Clonar la estructura del proyecto en el directorio local
+git clone https://github.com/hazielrz/kali-dreamjourney-theme.git
+
+# 3. Transicionar al directorio de trabajo
+cd kali-dreamjourney-theme
+
+# 4. Asignar privilegios de ejecución binaria al script
+chmod +x install.sh
+
+# 5. Inicializar la secuencia de automatización
+./install.sh
