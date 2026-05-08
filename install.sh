@@ -44,6 +44,7 @@ EOF
 
 chmod -R 755 "$ICONS_DIR/$CURSOR_THEME_NAME"
 
+
 # 4. Migración de Archivos de Configuración y Assets
 echo "[*] Desplegando archivos de configuración de sistema..."
 cp "$REPO_DIR/config/fastfetch/config.jsonc" "$CONFIG_DIR/fastfetch/"
@@ -71,6 +72,21 @@ sudo update-alternatives --set x-terminal-emulator /usr/bin/kitty
 if ! grep -q "fastfetch" "$HOME/.zshrc"; then
     echo -e "\n# Lanzamiento de Fastfetch\nfastfetch" >> "$HOME/.zshrc"
 fi
+echo "[*] Configurando el gestor de sesiones LightDM..."
 
+# 1
+sudo mkdir -p /usr/share/backgrounds
+sudo cp "$WALLPAPER_DIR/dream_journey.png" /usr/share/backgrounds/dream_journey.png
+
+# 2. Sobrescritura del archivo protegido mediante paso de parámetros con tee
+sudo tee /etc/lightdm/lightdm-gtk-greeter.conf > /dev/null <<EOF
+[greeter]
+background = /usr/share/backgrounds/dream_journey.png
+theme-name = Adwaita-dark
+icon-theme-name = $CURSOR_THEME_NAME
+cursor-theme-name = $CURSOR_THEME_NAME
+font-name = Monospace 11
+indicators = ~host;~spacer;~clock;~spacer;~session;~power
+EOF
 echo "[+] El entorno se ha actualizado satisfactoriamente."
 echo "[!] Nota: Es posible que deba cerrar y abrir su sesión para visualizar el cambio de cursores."
