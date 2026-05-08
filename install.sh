@@ -17,6 +17,14 @@ echo "[*] Iniciando despliegue de arquitectura visual para XFCE..."
 # 1. Instalación de dependencias del sistema
 sudo apt update && sudo apt install -y fastfetch chafa
 
+# Establecer Kitty como emulador por defecto
+echo "[*] Configurando Kitty como terminal predeterminada..."
+sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/kitty 50
+sudo update-alternatives --set x-terminal-emulator /usr/bin/kitty
+
+# Configurar el atajo de teclado de XFCE para usar la terminal predeterminada
+xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/<Super>t" -n -t string -s "exo-open --launch TerminalEmulator"
+
 # 2. Estructuración del sistema de archivos local
 mkdir -p "$CONFIG_DIR/fastfetch"
 mkdir -p "$CONFIG_DIR/xfce4/terminal"
