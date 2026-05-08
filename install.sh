@@ -1,41 +1,49 @@
 #!/bin/bash
 
-# Definición de rutas
+# ==============================================================================
+# Script de Instalación: Tema XFCE Dream Journey (Kali Linux)
+# ==============================================================================
+
+# Variables de entorno y rutas
 REPO_DIR=$(pwd)
 CONFIG_DIR="$HOME/.config"
+ICONS_DIR="$HOME/.icons"
+WALLPAPER_DIR="$HOME/Imágenes/Wallpapers"
+WALLPAPER_FILE="dream_journey.jpg"
+CURSOR_THEME_NAME="dream-journey-cursors"
 
-echo "[*] Iniciando la instalación del tema Dream Journey..."
+echo "[*] Iniciando despliegue de arquitectura visual para XFCE..."
 
-# 1. Instalación de dependencias 
-echo "[*] Instalando dependencias necesarias (fastfetch, feh)..."
-sudo apt update && sudo apt install -y fastfetch feh kitty
+# 1. Instalación de dependencias del sistema
+sudo apt update && sudo apt install -y fastfetch chafa
 
-# 2. Creación de directorios
+# 2. Estructuración del sistema de archivos local
 mkdir -p "$CONFIG_DIR/fastfetch"
-mkdir -p "$CONFIG_DIR/kitty"
-mkdir -p "$HOME/Imágenes/Wallpapers"
+mkdir -p "$CONFIG_DIR/xfce4/terminal"
+mkdir -p "$ICONS_DIR"
+mkdir -p "$WALLPAPER_DIR"
 
-# 3. Aplicación de configuraciones
-echo "[*] Copiando archivos de configuración..."
+# 3. Transferencia de assets y configuraciones
+echo "[*] Migrando configuraciones locales..."
 cp -r "$REPO_DIR/config/fastfetch/config.jsonc" "$CONFIG_DIR/fastfetch/"
-cp -r "$REPO_DIR/config/kitty/kitty.conf" "$CONFIG_DIR/kitty/"
+cp -r "$REPO_DIR/config/xfce4-terminal/terminalrc" "$CONFIG_DIR/xfce4/terminal/"
+cp -r "$REPO_DIR/cursors/$CURSOR_THEME_NAME" "$ICONS_DIR/"
+cp "$REPO_DIR/wallpapers/$WALLPAPER_FILE" "$WALLPAPER_DIR/"
 
-# Copiar recursos gráficos
-cp "$REPO_DIR/wallpapers/"* "$HOME/Imágenes/Wallpapers/"
-cp -r "$REPO_DIR/assets" "$CONFIG_DIR/kali-dreamjourney-theme/"
+# 4. Inyección de configuración en el registro de XFCE
+echo "[*] Aplicando modificaciones en xfconf..."
 
-# 4. Aplicación del fondo de pantalla
-echo "[*] Estableciendo fondo de pantalla..."
-feh --bg-fill "$HOME/Imágenes/Wallpapers/dream_journey.jpg"
+# Aplicación del paquete de cursores
+xfconf-query -c xsettings -p /Gtk/CursorThemeName -s "$CURSOR_THEME_NAME"
 
-# Añadir feh al inicio automático (ejemplo para .xinitrc o bspwmrc)
-if ! grep -q "feh --bg-fill" "$HOME/.xprofile"; then
-    echo "feh --bg-fill $HOME/Imágenes/Wallpapers/dream_journey.jpg &" >> "$HOME/.xprofile"
+# Aplicación del fondo de pantalla en todas las pantallas registradas
+for property in $(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
+    xfconf-query -c xfce4-desktop -p "$property" -s "$WALLPAPER_DIR/$WALLPAPER_FILE"
+done
+
+# 5. Integración del renderizado de sistema en la shell
+if ! grep -q "fastfetch" "$HOME/.bashrc" && ! grep -q "fastfetch" "$HOME/.zshrc"; then
+    echo "fastfetch" >> "$HOME/.zshrc" # Kali utiliza zsh por defecto en instalaciones recientes
 fi
 
-# 5. Configurar el bashrc para ejecutar fastfetch al abrir la terminal
-if ! grep -q "fastfetch" "$HOME/.bashrc"; then
-    echo "fastfetch" >> "$HOME/.bashrc"
-fi
-
-echo "[+] Instalación completada. Por favor, reinicie su terminal."
+echo "[+] Despliegue completado con éxito. Se requiere reiniciar la sesión del emulador de terminal."
