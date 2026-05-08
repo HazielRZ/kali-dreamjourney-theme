@@ -105,6 +105,59 @@ sudo update-alternatives --set x-terminal-emulator /usr/bin/kitty
 if ! grep -q "fastfetch" "$HOME/.zshrc"; then
     echo -e "\n# Lanzamiento automático de Fastfetch\nfastfetch" >> "$HOME/.zshrc"
 fi
+# ==============================================================================
+# MÓDULO GRUB2: Personalización del Gestor de Arranque
+# ==============================================================================
+echo "[*] Configurando el tema gráfico del gestor de arranque (GRUB2)..."
+
+# 1. Definición de rutas y creación de directorios con privilegios
+GRUB_THEME_DIR="/boot/grub/themes/DreamJourney"
+sudo mkdir -p "$GRUB_THEME_DIR"
+
+# 2. Transferencia del fondo de pantalla al directorio de GRUB
+# GRUB requiere acceder a la imagen antes de montar las particiones de usuario
+sudo cp "$WALLPAPER_DIR/dream_journey.png" "$GRUB_THEME_DIR/background.png"
+
+# 3. Inyección del manifiesto estructural de GRUB (theme.txt)
+echo "[*] Generando matriz de renderizado para el menú de arranque..."
+sudo tee "$GRUB_THEME_DIR/theme.txt" > /dev/null <<EOF
+# Manifiesto de Tema GRUB2: Dream Journey
+title-text: ""
+desktop-image: "background.png"
+desktop-color: "#0D0D0D"
+
+# Geometría de la ventana de comandos de GRUB (Fallback)
+terminal-left: "15%"
+terminal-top: "20%"
+terminal-width: "70%"
+terminal-height: "60%"
+
+# Estructura del menú de selección de Kernel
++ boot_menu {
+    left = 15%
+    top = 30%
+    width = 70%
+    height = 50%
+    item_color = "#f2e0d0"
+    selected_item_color = "#f2d22e"
+    item_spacing = 8
+}
+EOF
+
+# 4. Modificación del registro global de GRUB
+echo "[*] Inscribiendo el nuevo tema en /etc/default/grub..."
+
+# Elimina cualquier tema previamente configurado para evitar conflictos
+sudo sed -i 's|^GRUB_THEME=.*$|#GRUB_THEME_ANTERIOR_DESACTIVADO|g' /etc/default/grub
+
+# Inyecta la directiva que apunta al nuevo manifiesto de Dream Journey
+if ! grep -q "GRUB_THEME=\"$GRUB_THEME_DIR/theme.txt\"" /etc/default/grub; then
+    echo "GRUB_THEME=\"$GRUB_THEME_DIR/theme.txt\"" | sudo tee -a /etc/default/grub > /dev/null
+fi
+
+# 5. Compilación del nuevo archivo de arranque
+echo "[*] Compilando configuración de GRUB (este proceso puede demorar unos segundos)..."
+sudo update-grub
 
 # 9. Sincronización de Componentes Activos
 echo "[*] Reiniciando componentes visuales en caliente..."
