@@ -57,8 +57,8 @@ echo "[*] Aplicando cambios en el registro de XFCE..."
 xfconf-query -c xsettings -p /Gtk/CursorThemeName -s "$CURSOR_THEME_NAME"
 
 # Aplicación del fondo de pantalla en todos los monitores detectados
-for property in \$(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
-    xfconf-query -c xfce4-desktop -p "\$property" -s "$WALLPAPER_DIR/dream_journey.png"
+for property in $(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
+    xfconf-query -c xfce4-desktop -p "$property" -s "$WALLPAPER_DIR/dream_journey.png"
 done
 
 # 6. Configuración de Terminal Predeterminada
