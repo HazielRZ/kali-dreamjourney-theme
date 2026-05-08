@@ -158,6 +158,35 @@ fi
 # 5. Compilación del nuevo archivo de arranque
 echo "[*] Compilando configuración de GRUB (este proceso puede demorar unos segundos)..."
 sudo update-grub
+# ==============================================================================
+# MÓDULO XFWM4: Marcos de Ventana y Controles
+# ==============================================================================
+echo "[*] Inyectando esquema de colores para bordes de ventana..."
+
+# 1. Instanciación del directorio del tema de ventanas
+XFWM4_DIR="$HOME/.themes/$CURSOR_THEME_NAME/xfwm4"
+mkdir -p "$XFWM4_DIR"
+
+# 2. Generación del manifiesto themerc
+# Este archivo mapea la paleta Adobe Color directamente a los estados de las ventanas
+cat <<EOF > "$XFWM4_DIR/themerc"
+active_text_color=#f2e0d0
+inactive_text_color=#655555
+active_color_1=#0D0D0D
+inactive_color_1=#0D0D0D
+active_color_2=#735d63
+inactive_color_2=#655555
+title_shadow_active=false
+title_shadow_inactive=false
+button_spacing=4
+button_offset=8
+EOF
+
+# 3. Aplicación de las directivas en el registro XFCE
+echo "[*] Reconfigurando el motor de renderizado de ventanas..."
+xfconf-query -c xfwm4 -p /general/theme -s "$CURSOR_THEME_NAME"
+xfconf-query -c xfwm4 -p /general/title_alignment -s "center"
+xfconf-query -c xfwm4 -p /general/button_layout -s "O|HMC"
 
 # 9. Sincronización de Componentes Activos
 echo "[*] Reiniciando componentes visuales en caliente..."
