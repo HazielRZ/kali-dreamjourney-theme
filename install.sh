@@ -1,57 +1,75 @@
 #!/bin/bash
 
 # ==============================================================================
-# Script de Instalación: Tema XFCE Dream Journey (Kali Linux)
+# Script de Despliegue: Kali Dream Journey Theme
+# Autor: Haziel Ruiz Zuñiga
+# Descripción: Automatización de entorno XFCE con integración de Kitty y Fastfetch.
 # ==============================================================================
 
-# Variables de entorno y rutas
+set -e # Finalizar ejecución ante cualquier error
+
+# Definición de variables de entorno
 REPO_DIR=$(pwd)
 CONFIG_DIR="$HOME/.config"
 ICONS_DIR="$HOME/.icons"
 WALLPAPER_DIR="$HOME/Imágenes/Wallpapers"
-WALLPAPER_FILE="dream_journey.jpg"
-CURSOR_THEME_NAME="dream-journey-cursors"
+CURSOR_THEME_NAME="DreamJourney"
+THEME_PATH="$CONFIG_DIR/kali-dreamjourney-theme"
 
-echo "[*] Iniciando despliegue de arquitectura visual para XFCE..."
+echo "[*] Iniciando el despliegue del ecosistema visual Dream Journey..."
 
-# 1. Instalación de dependencias del sistema
-sudo apt update && sudo apt install -y fastfetch chafa
+# 1. Gestión de Dependencias
+echo "[*] Verificando e instalando dependencias (kitty, fastfetch, chafa)..."
+sudo apt update && sudo apt install -y kitty fastfetch chafa curl
 
-# Establecer Kitty como emulador por defecto
-echo "[*] Configurando Kitty como terminal predeterminada..."
+# 2. Preparación de la Estructura de Directorios
+mkdir -p "$CONFIG_DIR/fastfetch"
+mkdir -p "$CONFIG_DIR/kitty"
+mkdir -p "$ICONS_DIR/$CURSOR_THEME_NAME"
+mkdir -p "$WALLPAPER_DIR"
+mkdir -p "$THEME_PATH/assets"
+
+# 3. Configuración del Tema de Cursores
+echo "[*] Configurando el paquete de cursores..."
+cp -r "$REPO_DIR/cursors/"* "$ICONS_DIR/$CURSOR_THEME_NAME/"
+
+# Generación dinámica del archivo index.theme para reconocimiento de X11/GTK
+cat <<EOF > "$ICONS_DIR/$CURSOR_THEME_NAME/index.theme"
+[Icon Theme]
+Name=$CURSOR_THEME_NAME
+Comment=Tema de cursores inspirado en Dream Journey
+Inherits=core
+EOF
+
+chmod -R 755 "$ICONS_DIR/$CURSOR_THEME_NAME"
+
+# 4. Migración de Archivos de Configuración y Assets
+echo "[*] Desplegando archivos de configuración de sistema..."
+cp "$REPO_DIR/config/fastfetch/config.jsonc" "$CONFIG_DIR/fastfetch/"
+cp "$REPO_DIR/config/kitty/kitty.conf" "$CONFIG_DIR/kitty/"
+cp "$REPO_DIR/assets/Logo.png" "$THEME_PATH/assets/"
+cp "$REPO_DIR/wallpapers/Story_Still_still_090043083_00_(difference02).png" "$WALLPAPER_DIR/dream_journey.png"
+
+# 5. Aplicación de Configuraciones en XFCE (xfconf)
+echo "[*] Aplicando cambios en el registro de XFCE..."
+
+# Establecer tema de cursores
+xfconf-query -c xsettings -p /Gtk/CursorThemeName -s "$CURSOR_THEME_NAME"
+
+# Aplicación del fondo de pantalla en todos los monitores detectados
+for property in \$(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
+    xfconf-query -c xfce4-desktop -p "\$property" -s "$WALLPAPER_DIR/dream_journey.png"
+done
+
+# 6. Configuración de Terminal Predeterminada
+echo "[*] Estableciendo Kitty como emulador de terminal prioritario..."
 sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/kitty 50
 sudo update-alternatives --set x-terminal-emulator /usr/bin/kitty
 
-# Configurar el atajo de teclado de XFCE para usar la terminal predeterminada
-xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/<Super>t" -n -t string -s "exo-open --launch TerminalEmulator"
-
-# 2. Estructuración del sistema de archivos local
-mkdir -p "$CONFIG_DIR/fastfetch"
-mkdir -p "$CONFIG_DIR/xfce4/terminal"
-mkdir -p "$ICONS_DIR"
-mkdir -p "$WALLPAPER_DIR"
-
-# 3. Transferencia de assets y configuraciones
-echo "[*] Migrando configuraciones locales..."
-cp -r "$REPO_DIR/config/fastfetch/config.jsonc" "$CONFIG_DIR/fastfetch/"
-cp -r "$REPO_DIR/config/xfce4-terminal/terminalrc" "$CONFIG_DIR/xfce4/terminal/"
-cp -r "$REPO_DIR/cursors/$CURSOR_THEME_NAME" "$ICONS_DIR/"
-cp "$REPO_DIR/wallpapers/$WALLPAPER_FILE" "$WALLPAPER_DIR/"
-
-# 4. Inyección de configuración en el registro de XFCE
-echo "[*] Aplicando modificaciones en xfconf..."
-
-# Aplicación del paquete de cursores
-xfconf-query -c xsettings -p /Gtk/CursorThemeName -s "$CURSOR_THEME_NAME"
-
-# Aplicación del fondo de pantalla en todas las pantallas registradas
-for property in $(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
-    xfconf-query -c xfce4-desktop -p "$property" -s "$WALLPAPER_DIR/$WALLPAPER_FILE"
-done
-
-# 5. Integración del renderizado de sistema en la shell
-if ! grep -q "fastfetch" "$HOME/.bashrc" && ! grep -q "fastfetch" "$HOME/.zshrc"; then
-    echo "fastfetch" >> "$HOME/.zshrc" # Kali utiliza zsh por defecto en instalaciones recientes
+# 7. Persistencia en el Shell (zsh/bash)
+if ! grep -q "fastfetch" "$HOME/.zshrc"; then
+    echo -e "\n# Lanzamiento de Fastfetch\nfastfetch" >> "$HOME/.zshrc"
 fi
 
-echo "[+] Despliegue completado con éxito. Se requiere reiniciar la sesión del emulador de terminal."
+echo "[+] El entorno se ha actualizado satisfactoriamente."
+echo "[!] Nota: Es posible que deba cerrar y abrir su sesión para visualizar el cambio de cursores."
