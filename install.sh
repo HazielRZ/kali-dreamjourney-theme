@@ -25,13 +25,22 @@ sudo apt update && sudo apt install -y kitty fastfetch chafa curl
 # 2. Preparación de la Estructura de Directorios
 mkdir -p "$CONFIG_DIR/fastfetch"
 mkdir -p "$CONFIG_DIR/kitty"
-mkdir -p "$ICONS_DIR/$CURSOR_THEME_NAME"
+mkdir -p "$ICONS_DIR/cursors" 
 mkdir -p "$WALLPAPER_DIR"
 mkdir -p "$THEME_PATH/assets"
 
 # 3. Configuración del Tema de Cursores
 echo "[*] Configurando el paquete de cursores..."
-cp -r "$REPO_DIR/cursors/"* "$ICONS_DIR/$CURSOR_THEME_NAME/"
+# CORRECCIÓN: Los archivos se copian a la subcarpeta cursors
+
+
+# Generación dinámica del archivo index.theme en la raíz del tema
+cat <<EOF > "$ICONS_DIR/$CURSOR_THEME_NAME/index.theme"
+[Icon Theme]
+Name=$CURSOR_THEME_NAME
+Comment=Tema de cursores inspirado en Dream Journey
+Inherits=core
+EOF
 
 # Generación dinámica del archivo index.theme para reconocimiento de X11/GTK
 cat <<EOF > "$ICONS_DIR/$CURSOR_THEME_NAME/index.theme"
