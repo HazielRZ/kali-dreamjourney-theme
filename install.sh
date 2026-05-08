@@ -20,7 +20,7 @@ echo "[*] Iniciando el despliegue de la arquitectura visual Dream Journey..."
 
 # 1. Gestión de Dependencias
 echo "[*] Resolviendo dependencias de sistema..."
-sudo apt update && sudo apt install -y kitty fastfetch chafa curl
+sudo apt update && sudo apt install -y kitty fastfetch chafa curl picom
 
 # 2. Preparación de Estructura (Jerarquía Estricta X11)
 mkdir -p "$CONFIG_DIR/fastfetch"
@@ -109,6 +109,75 @@ fi
 # 9. Sincronización de Componentes Activos
 echo "[*] Reiniciando componentes visuales en caliente..."
 (xfce4-panel -r &)
+# ==============================================================================
+# MÓDULO PICOM: Motor de Composición Gráfica
+# ==============================================================================
+echo "[*] Desplegando el motor de composición por hardware (Picom)..."
+
+# 1. Desactivar el compositor heredado de XFCE mediante xfconf
+xfconf-query -c xfwm4 -p /general/use_compositing -s false
+
+# 2. Generar directorio y manifiesto de renderizado
+mkdir -p "$CONFIG_DIR/picom"
+cat <<EOF > "$CONFIG_DIR/picom/picom.conf"
+# Backend GLX para procesamiento por GPU
+backend = "glx";
+glx-no-stencil = true;
+glx-copy-from-front = false;
+vsync = true;
+
+# Geometría de Sombras (Mapeo a paleta Dream Journey #0D0D0D)
+shadow = true;
+shadow-radius = 12;
+shadow-offset-x = -10;
+shadow-offset-y = -10;
+shadow-opacity = 0.7;
+shadow-color = "#0D0D0D";
+shadow-exclude = [
+  "name = 'Notification'",
+  "class_g = 'Conky'",
+  "window_type = 'dock'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+
+# Desenfoque de profundidad (Dual Kawase) para terminales transparentes
+blur-background = true;
+blur-method = "dual_kawase";
+blur-strength = 5;
+blur-background-exclude = [
+  "window_type = 'desktop'",
+  "_GTK_FRAME_EXTENTS@:c"
+];
+
+# Interpolación de esquinas
+corner-radius = 8;
+rounded-corners-exclude = [
+  "window_type = 'dock'",
+  "window_type = 'desktop'"
+];
+
+# Transiciones de estado (Fading)
+fading = true;
+fade-in-step = 0.04;
+fade-out-step = 0.04;
+fade-delta = 4;
+EOF
+
+# 3. Automatización de arranque del demonio Picom
+mkdir -p "$CONFIG_DIR/autostart"
+cat <<EOF > "$CONFIG_DIR/autostart/picom.desktop"
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=Picom Compositor
+Comment=Motor de renderizado GLX para X11
+Exec=picom -b
+OnlyShowIn=XFCE;
+StartupNotify=false
+Terminal=false
+Hidden=false
+EOF
 
 echo "[+] Arquitectura instalada exitosamente."
 echo "[!] Nota: Es necesario reiniciar el sistema completo para visualizar los cambios en LightDM."
