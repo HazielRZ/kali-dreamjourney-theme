@@ -163,7 +163,7 @@ fade-out-step = 0.04;
 fade-delta = 4;
 EOF
 
-# 3. Automatización de arranque del demonio Picom
+# 3. Automatización de arranque dePicom
 mkdir -p "$CONFIG_DIR/autostart"
 cat <<EOF > "$CONFIG_DIR/autostart/picom.desktop"
 [Desktop Entry]
@@ -178,6 +178,37 @@ StartupNotify=false
 Terminal=false
 Hidden=false
 EOF
+# ==============================================================================
+# MÓDULO ZSH: Personalización del Prompt Interactiva
+# ==============================================================================
+echo "[*] Inyectando la estética del intérprete de comandos en Zsh..."
+
+# Verificación de idempotencia para no duplicar el código si se ejecuta 2 veces
+if ! grep -q "Tema Dream Journey para Zsh" "$HOME/.zshrc"; then
+    cat << 'EOF' >> "$HOME/.zshrc"
+
+# ==========================================
+# Tema Dream Journey para Zsh
+# ==========================================
+# Habilitar soporte de colores extendido
+autoload -U colors && colors
+
+# Variables de color basadas en la paleta hexadecimal
+C_GOLD="%F{#f2d22e}"
+C_CREAM="%F{#f2e0d0}"
+C_ROSE="%F{#735d63}"
+C_BROWN="%F{#655555}"
+C_RESET="%f"
+
+# Estructuración de un prompt de dos líneas
+PROMPT="${C_GOLD}╭─${C_CREAM}[${C_ROSE}%n@%m${C_CREAM}] ${C_GOLD}󰁔 ${C_BROWN}%~ ${C_RESET}
+${C_GOLD}╰─λ ${C_RESET}"
+
+# Indicador de estado a la derecha (Muestra un check dorado si el comando fue exitoso, o una X rojiza si falló)
+RPROMPT="%(?.${C_GOLD}✔.${C_ROSE}✘)%f"
+# ==========================================
+EOF
+fi
 
 echo "[+] Arquitectura instalada exitosamente."
 echo "[!] Nota: Es necesario reiniciar el sistema completo para visualizar los cambios en LightDM."
