@@ -111,6 +111,27 @@ OnlyShowIn=XFCE;
 StartupNotify=false
 EOF
 
+# ==============================================================================
+# MÓDULO BINARIOS: Herramientas de Análisis Táctico
+# ==============================================================================
+echo "[*] Desplegando el motor de escaneo de red (Dream Scan)..."
+
+# 1. Instanciación del directorio estándar para binarios de usuario
+LOCAL_BIN_DIR="$HOME/.local/bin"
+mkdir -p "$LOCAL_BIN_DIR"
+
+# 2. Transferencia del script y remoción de la extensión para invocación directa
+cp "$REPO_DIR/bin/dream_scan.sh" "$LOCAL_BIN_DIR/dream_scan" 2>/dev/null || true
+
+# 3. Asignación de bit de ejecución al analizador
+chmod +x "$LOCAL_BIN_DIR/dream_scan"
+
+# 4. Verificación de la variable de entorno PATH en el intérprete Zsh
+# Es imperativo que ~/.local/bin esté en el PATH para invocar el comando globalmente
+if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc"; then
+    echo -e "\n# Extensión del PATH para binarios locales\nexport PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$HOME/.zshrc"
+fi
+
 # 8. Modificación de Zsh y Terminal
 echo "[*] Estableciendo shell interactiva y emulador nativo..."
 sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/kitty 50
