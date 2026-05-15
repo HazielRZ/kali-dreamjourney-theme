@@ -80,32 +80,18 @@ cat <<EOF > "$CONFIG_DIR/gtk-3.0/gtk.css"
 #clock-button { color: #f2d22e; font-weight: bold; }
 EOF
 
-# 6. Registro XFCE y XFWM4 (Bordes de Ventana)
+
+# 6. Registro XFCE
 echo "[*] Aplicando parámetros en el gestor de ventanas y escritorio..."
 xfconf-query -c xsettings -p /Gtk/CursorThemeName -s "$CURSOR_THEME_NAME"
+
 for property in $(xfconf-query -c xfce4-desktop -p /backdrop -l | grep "last-image"); do
     xfconf-query -c xfce4-desktop -p "$property" -s "$WALLPAPER_DIR/dream_journey.png"
 done
 
-# Estructura themerc para controles de ventana
-XFWM4_DIR="$HOME/.themes/$CURSOR_THEME_NAME/xfwm4"
-mkdir -p "$XFWM4_DIR"
-cat <<EOF > "$XFWM4_DIR/themerc"
-active_text_color=#f2e0d0
-inactive_text_color=#655555
-active_color_1=#0D0D0D
-inactive_color_1=#0D0D0D
-active_color_2=#735d63
-inactive_color_2=#655555
-title_shadow_active=false
-title_shadow_inactive=false
-button_spacing=4
-button_offset=8
-EOF
-xfconf-query -c xfwm4 -p /general/theme -s "$CURSOR_THEME_NAME"
+# Alineación de botones utilizando el tema nativo (Kali-Dark)
 xfconf-query -c xfwm4 -p /general/title_alignment -s "center"
 xfconf-query -c xfwm4 -p /general/button_layout -s "O|HMC"
-
 # 7. Motor de Composición Seguro (Picom para VM)
 echo "[*] Configurando aceleración de ventanas (Backend Xrender)..."
 xfconf-query -c xfwm4 -p /general/use_compositing -s false
