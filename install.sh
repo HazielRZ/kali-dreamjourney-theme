@@ -4,6 +4,30 @@
 # Script de Despliegue: Kali Dream Journey Theme (V4 - Total Conversion VM-Safe)
 # Autor: Haziel Ruiz Zuñiga
 # Descripción: Arquitectura visual completa optimizada para máquinas virtuales.
+#
+#Oh whee
+#
+#      /\                  /
+#      \ \ \              / /
+#      (. \ \          / / . /
+#      \.  # \_ --  _ \ / #  )
+#      \_   /\      /\ -'
+#      /  / # \ . . /  / # \
+#     /   < .  >< /  \ . > -
+#    /#      ,----. \   #\
+#   /#/ |  /(o))\(o) \  |#
+#  -//  \  \___  ___/ | \ \
+#    |    \ \_  w  _/   \ )
+#   / |    /   \ /    \  / \
+#  /   \   \    \_/    /   \
+# //   /    /----- \      \\
+# \  /  \  \    /\  \/   \  |/
+#  \|      / /-----  \ \ / |  |
+#        /  /          \   //
+#       /  /  XXXXX   \
+#        /___|__|___ \
+
+#
 # ==============================================================================
 
 set -e 
